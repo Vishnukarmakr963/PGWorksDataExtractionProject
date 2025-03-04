@@ -1,0 +1,22 @@
+# Prevents pipeline from running on every commit
+trigger: none
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self  # Ensures the repository is checked out
+
+- task: AzureCLI@2
+  displayName: 'Deploy PGWorks Data Engineering Infra'
+  inputs:
+    azureSubscription: 'AzureServiceConnection'  # Ensure correct service connection
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Creating Resource Group..."
+      az group create --name pgworks-resource-group --location "East US"
+
+      echo "Deploying Bicep Template..."
+      az deployment group create --resource-group pgworks-resource-group --template-file ./pgworks-azure-infra-rg.bicep --parameters location="East US"
