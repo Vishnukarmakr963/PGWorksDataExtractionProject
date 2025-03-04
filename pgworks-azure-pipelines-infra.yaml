@@ -9,9 +9,22 @@ steps:
 - checkout: self  # Ensures the repository is checked out
 
 - task: AzureCLI@2
+  displayName: 'Register Required Azure Resource Providers'
+  inputs:
+    azureSubscription: 'AzureServiceConnection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Registering required Azure resource providers..."
+      az provider register --namespace Microsoft.Databricks
+      az provider register --namespace Microsoft.Synapse
+      az provider register --namespace Microsoft.CognitiveServices
+      az provider register --namespace Microsoft.Resources
+
+- task: AzureCLI@2
   displayName: 'Deploy PGWorks Data Engineering Infra'
   inputs:
-    azureSubscription: 'AzureServiceConnection'  # Ensure correct service connection
+    azureSubscription: 'AzureServiceConnection'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |

@@ -44,7 +44,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   location: location
 }
 
-// Data Lake Storage (Separate from main storage if needed)
+// Data Lake Storage
 resource dataLake 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: dataLakeName
   location: location
@@ -67,31 +67,52 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   }
 }
 
-// Databricks (Corrected: Now at Resource Group Level)
-resource databricks 'Microsoft.Databricks/workspaces@2021-04-01' = {
+// Databricks (Fix: Correct API version & use resourceId())
+resource databricks 'Microsoft.Databricks/workspaces@2023-04-01-preview' = {
   name: databricksName
   location: location
   properties: {
-    managedResourceGroupId: resourceGroup().id
+    managedResourceGroupId: resourceId('Microsoft.Resources/resourceGroups', 'pgworks-managed-rg')
   }
 }
 
-// Synapse Analytics Workspace (Corrected: Now at Resource Group Level)
-resource synapse 'Microsoft.Synapse/workspaces@2021-06-01' = {
+// Synapse Analytics Workspace (Fix: Identity & Data Lake Storage)
+resource synapse 'Microsoft.Synapse/workspaces@2023-02-01' = {
   name: synapseName
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
-    managedResourceGroupName: resourceGroup().name
+    managedResourceGroupName: 'pgworks-managed-rg'  // Fix: Different from deployment RG
+    defaultDataLakeStorage: {
+      accountUrl: 'https://${dataLakeName}.dfs.core.windows.net'
+      filesystem: 'synapse-container'
+    }
   }
 }
 
-// Document Intelligence (Corrected: Now at Resource Group Level)
+// Document Intelligence (Fix: Access Policies)
 resource docIntelligence 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
   name: docIntelligenceName
   location: location
   kind: 'FormRecognizer'
   sku: {
     name: docIntelligenceSku
+  }
+  properties: {
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
+    accessPolicies: [
+      {
+        objectId: '111bc769-2db8-4045-b47a-43e2f11d9cd0' // Object ID from App Registration
+        permissions: {
+          keys: ['read', 'list']
+          secrets: ['get']
+        }
+      }
+    ]
   }
 }
 
