@@ -86,13 +86,13 @@ resource synapse 'Microsoft.Synapse/workspaces@2023-02-01' = {
   properties: {
     managedResourceGroupName: 'pgworks-managed-rg'  // Fix: Different from deployment RG
     defaultDataLakeStorage: {
-      accountUrl: 'https://${dataLakeName}.dfs.core.windows.net'
+      accountUrl: 'https://${dataLakeName}.dfs.${environment().suffixes.storage}'
       filesystem: 'synapse-container'
     }
   }
 }
 
-// Document Intelligence (Fix: Access Policies)
+// Document Intelligence (Fix: Removed `accessPolicies`)
 resource docIntelligence 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
   name: docIntelligenceName
   location: location
@@ -104,15 +104,6 @@ resource docIntelligence 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
     networkAcls: {
       defaultAction: 'Allow'
     }
-    accessPolicies: [
-      {
-        objectId: '111bc769-2db8-4045-b47a-43e2f11d9cd0' // Object ID from App Registration
-        permissions: {
-          keys: ['read', 'list']
-          secrets: ['get']
-        }
-      }
-    ]
   }
 }
 
