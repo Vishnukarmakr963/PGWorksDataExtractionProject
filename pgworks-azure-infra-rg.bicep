@@ -67,8 +67,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   }
 }
 
-// Databricks (Fix: Correct API version & use resourceId())
-resource databricks 'Microsoft.Databricks/workspaces@2023-04-01-preview' = {
+// Databricks (Stable API version)
+resource databricks 'Microsoft.Databricks/workspaces@2021-04-01' = {
   name: databricksName
   location: location
   properties: {
@@ -76,8 +76,8 @@ resource databricks 'Microsoft.Databricks/workspaces@2023-04-01-preview' = {
   }
 }
 
-// Synapse Analytics Workspace (Fix: Identity & Data Lake Storage)
-resource synapse 'Microsoft.Synapse/workspaces@2023-02-01' = {
+// Synapse Analytics Workspace (Fix: Correct API version & Managed RG)
+resource synapse 'Microsoft.Synapse/workspaces@2023-05-01' = {
   name: synapseName
   location: location
   identity: {
