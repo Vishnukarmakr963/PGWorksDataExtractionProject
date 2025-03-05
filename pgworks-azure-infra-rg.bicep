@@ -16,6 +16,9 @@ param storageAccountName string = 'pgwrksstorage123'
 @description('Databricks Workspace Name')
 param databricksName string = 'pgwrksdbw123'
 
+@description('Databricks Location')
+param databricksLocation string = 'East US 2'  // Deploy Databricks in East US 2
+
 @description('Synapse Workspace Name')
 param synapseName string = 'pgwrkssynapse123'
 
@@ -67,16 +70,16 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   }
 }
 
-// Databricks (Stable API version)
-resource databricks 'Microsoft.Databricks/workspaces@2021-04-01' = {
+// Databricks (Fix: Correct API version & deploy to East US 2)
+resource databricks 'Microsoft.Databricks/workspaces@2024-05-01' = {
   name: databricksName
-  location: location
+  location: databricksLocation
   properties: {
     managedResourceGroupId: resourceId('Microsoft.Resources/resourceGroups', 'pgworks-managed-rg')
   }
 }
 
-// Synapse Analytics Workspace (Fix: Correct API version & Managed RG)
+// Synapse Analytics Workspace
 resource synapse 'Microsoft.Synapse/workspaces@2023-05-01' = {
   name: synapseName
   location: location
@@ -92,7 +95,7 @@ resource synapse 'Microsoft.Synapse/workspaces@2023-05-01' = {
   }
 }
 
-// Document Intelligence (Fix: Removed `accessPolicies`)
+// Document Intelligence (Fix: Enabled public network access)
 resource docIntelligence 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
   name: docIntelligenceName
   location: location
@@ -101,6 +104,7 @@ resource docIntelligence 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
     name: docIntelligenceSku
   }
   properties: {
+    publicNetworkAccess: 'Enabled'  // Fix: Ensures `accessPolicies` is not required
     networkAcls: {
       defaultAction: 'Allow'
     }
