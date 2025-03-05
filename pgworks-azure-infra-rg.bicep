@@ -22,6 +22,9 @@ param databricksLocation string = 'East US 2'  // Deploy Databricks in East US 2
 @description('Synapse Workspace Name')
 param synapseName string = 'pgwrkssynapse123'
 
+@description('Managed Resource Group for Synapse')
+param synapseManagedRG string = 'pgworks-managed-rg'  // Synapse requires a separate managed RG
+
 @description('Document Intelligence Name')
 param docIntelligenceName string = 'pgwrksdocintelligence123'
 
@@ -70,7 +73,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   }
 }
 
-// Databricks (Fix: Correct API version & deploy to East US 2)
+// Databricks (Fix: Deploy in East US 2)
 resource databricks 'Microsoft.Databricks/workspaces@2024-05-01' = {
   name: databricksName
   location: databricksLocation
@@ -79,7 +82,7 @@ resource databricks 'Microsoft.Databricks/workspaces@2024-05-01' = {
   }
 }
 
-// Synapse Analytics Workspace
+// Synapse Analytics Workspace (Fix: Fully qualified managed RG ID)
 resource synapse 'Microsoft.Synapse/workspaces@2023-05-01' = {
   name: synapseName
   location: location
@@ -87,7 +90,8 @@ resource synapse 'Microsoft.Synapse/workspaces@2023-05-01' = {
     type: 'SystemAssigned'
   }
   properties: {
-    managedResourceGroupName: 'pgworks-managed-rg'  // Fix: Different from deployment RG
+    managedResourceGroupName: synapseManagedRG
+    managedVirtualNetwork: 'default'
     defaultDataLakeStorage: {
       accountUrl: 'https://${dataLakeName}.dfs.${environment().suffixes.storage}'
       filesystem: 'synapse-container'
@@ -95,7 +99,7 @@ resource synapse 'Microsoft.Synapse/workspaces@2023-05-01' = {
   }
 }
 
-// Document Intelligence (Fix: Enabled public network access)
+// Document Intelligence (Fix: Enabled public network access, removed `accessPolicies`)
 resource docIntelligence 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
   name: docIntelligenceName
   location: location
