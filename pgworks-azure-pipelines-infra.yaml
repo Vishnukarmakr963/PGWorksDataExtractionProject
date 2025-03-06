@@ -17,8 +17,6 @@ steps:
     inlineScript: |
       echo "Registering required Azure resource providers..."
       az provider register --namespace Microsoft.Databricks
-      az provider register --namespace Microsoft.Synapse
-      az provider register --namespace Microsoft.CognitiveServices
       az provider register --namespace Microsoft.Resources
 
 - task: AzureCLI@2
