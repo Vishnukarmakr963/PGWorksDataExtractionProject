@@ -48,7 +48,7 @@ resource dataLake 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-// Key Vault
+// Key Vault (Fix: Enabled RBAC to avoid `accessPolicies` error)
 resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   name: keyVaultName
   location: location
@@ -57,16 +57,17 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
       name: 'standard'
       family: 'A'
     }
+    enableRbacAuthorization: true // Fix: Enables RBAC instead of requiring accessPolicies
     tenantId: '509590f0-8823-4b65-b23f-5e9a7ccf847d'  // Directory (tenant) ID from App Registration
   }
 }
 
-// Databricks (Fix: Deploy in East US 2)
+// Databricks (Fix: Use Fully Qualified Managed Resource Group ID)
 resource databricks 'Microsoft.Databricks/workspaces@2024-05-01' = {
   name: databricksName
   location: databricksLocation
   properties: {
-    managedResourceGroupId: resourceId('Microsoft.Resources/resourceGroups', 'pgworks-managed-rg')
+    managedResourceGroupId: subscriptionResourceId('Microsoft.Resources/resourceGroups', 'pgworks-managed-rg') // Fix: Corrected reference
   }
 }
 

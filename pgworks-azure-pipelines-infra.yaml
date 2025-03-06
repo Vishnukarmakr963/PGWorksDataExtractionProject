@@ -18,6 +18,7 @@ steps:
       echo "Registering required Azure resource providers..."
       az provider register --namespace Microsoft.Databricks
       az provider register --namespace Microsoft.Resources
+      az provider register --namespace Microsoft.KeyVault
 
 - task: AzureCLI@2
   displayName: 'Deploy PGWorks Data Engineering Infra'
