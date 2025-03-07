@@ -19,8 +19,14 @@ param databricksName string = 'pgwrksdbw123'
 @description('Databricks Location')
 param databricksLocation string = 'East US 2'  // Deploy Databricks in East US 2
 
+@description('Document Intelligence Name')
+param docIntelligenceName string = 'pgwrksdocintelligence123'
+
 @description('SKU for Storage Account')
 param storageSku string = 'Standard_LRS'
+
+@description('SKU for Document Intelligence')
+param docIntelligenceSku string = 'S0'  // Available SKUs: F0 (free), S0 (standard)
 
 // Storage Account
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -57,7 +63,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
       name: 'standard'
       family: 'A'
     }
-    enableRbacAuthorization: true // Fix: Enables RBAC instead of requiring accessPolicies
+    enableRbacAuthorization: true // Enables RBAC instead of requiring accessPolicies
     tenantId: '509590f0-8823-4b65-b23f-5e9a7ccf847d'  // Directory (tenant) ID from App Registration
   }
 }
@@ -71,8 +77,25 @@ resource databricks 'Microsoft.Databricks/workspaces@2024-05-01' = {
   }
 }
 
+// Document Intelligence (Added to the template)
+resource docIntelligence 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
+  name: docIntelligenceName
+  location: location
+  kind: 'FormRecognizer'
+  sku: {
+    name: docIntelligenceSku
+  }
+  properties: {
+    publicNetworkAccess: 'Enabled'  // Ensures `accessPolicies` is not required
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
+  }
+}
+
 output storageAccountId string = storageAccount.id
 output dataFactoryId string = dataFactory.id
 output dataLakeId string = dataLake.id
 output keyVaultId string = keyVault.id
 output databricksId string = databricks.id
+output docIntelligenceId string = docIntelligence.id

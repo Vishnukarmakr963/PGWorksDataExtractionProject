@@ -19,6 +19,7 @@ steps:
       az provider register --namespace Microsoft.Databricks
       az provider register --namespace Microsoft.Resources
       az provider register --namespace Microsoft.KeyVault
+      az provider register --namespace Microsoft.CognitiveServices
 
 - task: AzureCLI@2
   displayName: 'Deploy PGWorks Data Engineering Infra'
