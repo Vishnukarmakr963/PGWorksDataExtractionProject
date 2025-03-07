@@ -28,7 +28,7 @@ steps:
     scriptLocation: 'inlineScript'
     inlineScript: |
       echo "Creating Resource Group..."
-      az group create --name pgworks-resource-group --location "East US"
+      az group create --name pgworksdataextraction --location "East US"
 
       echo "Deploying Bicep Template..."
-      az deployment group create --resource-group pgworks-resource-group --template-file ./pgworks-azure-infra-rg.bicep --parameters location="East US"
+      az deployment group create --resource-group pgworksdataextraction --template-file ./pgworks-azure-infra-rg.bicep --parameters location="East US"
